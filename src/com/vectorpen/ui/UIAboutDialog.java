@@ -6,8 +6,9 @@ import java.awt.Graphics;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.ResourceBundle;
 
@@ -97,15 +98,15 @@ public final class UIAboutDialog extends JDialog implements MouseListener
 
 		JScrollPane scrollPane = new JScrollPane();
 		scrollPane.setBounds(25, 155, WIDTH - 50, 170);
-		
+
 		backgroundPanel.add(scrollPane);
-		
+
 		scrollPane.setCorner(JScrollPane.LOWER_RIGHT_CORNER, new JScrollBar());
-		
+
 		JTextArea textArea = new JTextArea(readGPL());
-		
+
 		scrollPane.setViewportView(textArea);
-		
+
 		textArea.setBackground(Color.WHITE);
 		textArea.setLineWrap(true);
 
@@ -117,30 +118,23 @@ public final class UIAboutDialog extends JDialog implements MouseListener
 	{
 		StringBuilder contents = new StringBuilder();
 
-		try
-		{
-			URL url = getClass().getResource("/gpl.txt");
+		InputStream is = getClass().getResourceAsStream("/gpl.txt");
+		InputStreamReader isr = new InputStreamReader(is);
+		BufferedReader br = new BufferedReader(isr);
+		String line = null;
 
-			BufferedReader input =  new BufferedReader(new FileReader(new File(url.toURI())));
-
-			try
+		try {
+			while (( line = br.readLine()) != null)
 			{
-				String line = null;
+				contents.append(line);
+				contents.append(System.getProperty("line.separator"));
+			}
 
-				while (( line = input.readLine()) != null)
-				{
-					contents.append(line);
-					contents.append(System.getProperty("line.separator"));
-				}
-			}
-			finally
-			{
-				input.close();
-			}
-		}
-		catch (Exception exception)
-		{
-			exception.printStackTrace();
+			br.close();
+			isr.close();
+			is.close();
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
 
 		return contents.toString();
